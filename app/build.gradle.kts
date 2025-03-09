@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+val lifecycle_version = rootProject.extra["lifecycle_version"] as String
 
 plugins {
     id("com.android.application")
@@ -73,7 +74,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
-
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:$lifecycle_version")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }
