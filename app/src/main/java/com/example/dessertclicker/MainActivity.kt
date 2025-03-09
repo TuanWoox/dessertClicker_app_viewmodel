@@ -163,6 +163,8 @@ private fun DessertClickerApp(
             totalDessertsSold = uiState.totalDessertsSold,
             dessert1ImageId = uiState.dessert1ImageId,
             dessert2ImageId = uiState.dessert2ImageId,
+            dessert1Price = uiState.dessert1Price,  // Add this
+            dessert2Price = uiState.dessert2Price,  // Add this
             onDessert1Clicked = onDessert1Clicked,
             onDessert2Clicked = onDessert2Clicked,
             modifier = Modifier.padding(contentPadding)
@@ -212,6 +214,8 @@ fun DessertClickerScreen(
     totalDessertsSold: Int,
     @DrawableRes dessert1ImageId: Int,
     @DrawableRes dessert2ImageId: Int,
+    dessert1Price: Int,  // Add this parameter
+    dessert2Price: Int,  // Add this parameter
     onDessert1Clicked: () -> Unit,
     onDessert2Clicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -248,7 +252,7 @@ fun DessertClickerScreen(
                             contentScale = ContentScale.Crop,
                         )
                         Text(
-                            text = "$5",
+                            text = "$$dessert1Price",  // Use dynamic price
                             style = MaterialTheme.typography.titleMedium,
                             color = Color.White,
                             modifier = Modifier.padding(top = 8.dp)
@@ -269,7 +273,7 @@ fun DessertClickerScreen(
                             contentScale = ContentScale.Crop,
                         )
                         Text(
-                            text = "$8",
+                            text = "$$dessert2Price",  // Use dynamic price
                             style = MaterialTheme.typography.titleMedium,
                             color = Color.White,
                             modifier = Modifier.padding(top = 8.dp)

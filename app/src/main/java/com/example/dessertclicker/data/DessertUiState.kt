@@ -1,4 +1,4 @@
-
+// In DessertUiState.kt - Add the price fields
 package com.example.dessertclicker.data
 
 import androidx.annotation.DrawableRes
@@ -12,5 +12,7 @@ data class DessertUiState(
     val totalRevenue: Int = 0,
     val totalDessertsSold: Int = 0,
     @DrawableRes val dessert1ImageId: Int = R.drawable.cupcake,
-    @DrawableRes val dessert2ImageId: Int = R.drawable.donut
+    @DrawableRes val dessert2ImageId: Int = R.drawable.cupcake,
+    val dessert1Price: Int = 5,
+    val dessert2Price: Int = 5
 )
