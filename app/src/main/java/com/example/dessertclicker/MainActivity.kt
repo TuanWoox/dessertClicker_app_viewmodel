@@ -1,18 +1,4 @@
-/*
- * Copyright (C) 2022 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+// Now let's update the MainActivity to use the new UI
 package com.example.dessertclicker
 
 import android.content.ActivityNotFoundException
@@ -77,6 +63,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    // Lifecycle methods remain the same
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "onStart Called")
@@ -141,14 +128,16 @@ private fun DessertClickerApp(
     val uiState by viewModel.dessertUiState.collectAsState()
     DessertClickerApp(
         uiState = uiState,
-        onDessertClicked = viewModel::onDessertClicked
+        onDessert1Clicked = viewModel::onDessert1Clicked,
+        onDessert2Clicked = viewModel::onDessert2Clicked
     )
 }
 
 @Composable
 private fun DessertClickerApp(
     uiState: DessertUiState,
-    onDessertClicked: () -> Unit,
+    onDessert1Clicked: () -> Unit,
+    onDessert2Clicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Scaffold (
@@ -158,18 +147,24 @@ private fun DessertClickerApp(
                 onShareButtonClicked = {
                     shareSoldDessertsInformation(
                         intentContext = intentContext,
-                        dessertsSold = uiState.dessertsSold,
-                        revenue = uiState.revenue
+                        dessertsSold = uiState.totalDessertsSold,
+                        revenue = uiState.totalRevenue
                     )
                 }
             )
         }
     ) { contentPadding ->
         DessertClickerScreen(
-            revenue = uiState.revenue,
-            dessertsSold = uiState.dessertsSold,
-            dessertImageId = uiState.currentDessertImageId,
-            onDessertClicked = onDessertClicked,
+            dessert1Revenue = uiState.dessert1Revenue,
+            dessert2Revenue = uiState.dessert2Revenue,
+            totalRevenue = uiState.totalRevenue,
+            dessert1Sold = uiState.dessert1Sold,
+            dessert2Sold = uiState.dessert2Sold,
+            totalDessertsSold = uiState.totalDessertsSold,
+            dessert1ImageId = uiState.dessert1ImageId,
+            dessert2ImageId = uiState.dessert2ImageId,
+            onDessert1Clicked = onDessert1Clicked,
+            onDessert2Clicked = onDessert2Clicked,
             modifier = Modifier.padding(contentPadding)
         )
     }
@@ -180,6 +175,7 @@ private fun AppBar(
     onShareButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    // AppBar remains unchanged
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -208,10 +204,16 @@ private fun AppBar(
 
 @Composable
 fun DessertClickerScreen(
-    revenue: Int,
-    dessertsSold: Int,
-    @DrawableRes dessertImageId: Int,
-    onDessertClicked: () -> Unit,
+    dessert1Revenue: Int,
+    dessert2Revenue: Int,
+    totalRevenue: Int,
+    dessert1Sold: Int,
+    dessert2Sold: Int,
+    totalDessertsSold: Int,
+    @DrawableRes dessert1ImageId: Int,
+    @DrawableRes dessert2ImageId: Int,
+    onDessert1Clicked: () -> Unit,
+    onDessert2Clicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Box(modifier = modifier) {
@@ -221,78 +223,159 @@ fun DessertClickerScreen(
             contentScale = ContentScale.Crop
         )
         Column {
+            // Display dessert images in a row
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
             ) {
-                Image(
-                    painter = painterResource(dessertImageId),
-                    contentDescription = null,
+                Row(
                     modifier = Modifier
-                        .width(150.dp)
-                        .height(150.dp)
-                        .align(Alignment.Center)
-                        .clickable { onDessertClicked() },
-                    contentScale = ContentScale.Crop,
-                )
+                        .align(Alignment.Center),
+                    horizontalArrangement = Arrangement.spacedBy(32.dp)
+                ) {
+                    // First dessert
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(dessert1ImageId),
+                            contentDescription = "Dessert 1",
+                            modifier = Modifier
+                                .width(120.dp)
+                                .height(120.dp)
+                                .clickable { onDessert1Clicked() },
+                            contentScale = ContentScale.Crop,
+                        )
+                        Text(
+                            text = "$5",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+
+                    // Second dessert
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(dessert2ImageId),
+                            contentDescription = "Dessert 2",
+                            modifier = Modifier
+                                .width(120.dp)
+                                .height(120.dp)
+                                .clickable { onDessert2Clicked() },
+                            contentScale = ContentScale.Crop,
+                        )
+                        Text(
+                            text = "$8",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White,
+                            modifier = Modifier.padding(top = 8.dp)
+                        )
+                    }
+                }
             }
-            TransactionInfo(revenue = revenue, dessertsSold = dessertsSold)
+            TransactionInfo(
+                dessert1Revenue = dessert1Revenue,
+                dessert2Revenue = dessert2Revenue,
+                totalRevenue = totalRevenue,
+                dessert1Sold = dessert1Sold,
+                dessert2Sold = dessert2Sold,
+                totalDessertsSold = totalDessertsSold
+            )
         }
     }
 }
 
 @Composable
 private fun TransactionInfo(
-    revenue: Int,
-    dessertsSold: Int,
+    dessert1Revenue: Int,
+    dessert2Revenue: Int,
+    totalRevenue: Int,
+    dessert1Sold: Int,
+    dessert2Sold: Int,
+    totalDessertsSold: Int,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .background(Color.White),
     ) {
-        DessertsSoldInfo(dessertsSold)
-        RevenueInfo(revenue)
+        // Show individual dessert sales
+        DessertsSoldInfo(
+            title = "Dessert 1 Sold",
+            count = dessert1Sold
+        )
+        DessertsSoldInfo(
+            title = "Dessert 2 Sold",
+            count = dessert2Sold
+        )
+        DessertsSoldInfo(
+            title = stringResource(R.string.dessert_sold),
+            count = totalDessertsSold
+        )
+
+        // Show individual dessert revenues
+        RevenueInfo(
+            title = "Dessert 1 Revenue",
+            revenue = dessert1Revenue
+        )
+        RevenueInfo(
+            title = "Dessert 2 Revenue",
+            revenue = dessert2Revenue
+        )
+        RevenueInfo(
+            title = stringResource(R.string.total_revenue),
+            revenue = totalRevenue
+        )
     }
 }
 
 @Composable
-private fun RevenueInfo(revenue: Int, modifier: Modifier = Modifier) {
+private fun RevenueInfo(
+    title: String,
+    revenue: Int,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
-            text = stringResource(R.string.total_revenue),
-            style = MaterialTheme.typography.headlineMedium
+            text = title,
+            style = MaterialTheme.typography.titleMedium
         )
         Text(
             text = "$${revenue}",
             textAlign = TextAlign.Right,
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
 
-
 @Composable
-private fun DessertsSoldInfo(dessertsSold: Int, modifier: Modifier = Modifier) {
+private fun DessertsSoldInfo(
+    title: String,
+    count: Int,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
         Text(
-            text = stringResource(R.string.dessert_sold),
-            style = MaterialTheme.typography.titleLarge
+            text = title,
+            style = MaterialTheme.typography.titleMedium
         )
         Text(
-            text = dessertsSold.toString(),
-            style = MaterialTheme.typography.titleLarge
+            text = count.toString(),
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
@@ -303,7 +386,8 @@ fun MyDessertClickerAppPreview() {
     DessertClickerTheme {
         DessertClickerApp(
             uiState = DessertUiState(),
-            onDessertClicked = {}
+            onDessert1Clicked = {},
+            onDessert2Clicked = {}
         )
     }
 }
